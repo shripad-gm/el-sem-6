@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Machine {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  type      String
+  line      String
+  positionX Float
+  positionZ Float
+  status    String   @default("IDLE")
+  occupancy Float    @default(0)
+
+  // Relations
+  connectionsAsSource Connection[] @relation("SourceMachine")
+  connectionsAsTarget Connection[] @relation("TargetMachine")
+  workers             Worker[]     @relation("WorkerMachine")
+  telemetryLogs       TelemetryLog[]
+  activityLogs        ActivityLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Connection {
+  id              String   @id @default(uuid())
+  sourceMachineId String
+  targetMachineId String
+  createdAt       DateTime @default(now())
+
+  // Relations
+  sourceMachine   Machine  @relation("SourceMachine", fields: [sourceMachineId], references: [id], onDelete: Cascade)
+  targetMachine   Machine  @relation("TargetMachine", fields: [targetMachineId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceMachineId, targetMachineId])
+}
+
+model Worker {
+  id              String   @id @default(uuid())
+  employeeId      String   @unique
+  name            String
+  role            String
+  department      String
+  shiftId         String
+  machineId       String?
+  workflowId      String
+  attendance      String   @default("present")
+  status          String   @default("active")
+  productivity    Int      @default(0)
+  workload        Int      @default(0)
+  baseSalary      Float    @default(0)
+  overtimeHours   Float    @default(0)
+  incentives      Float    @default(0)
+  bonuses         Float    @default(0)
+  workstation     String   @default("—")
+  tools           String   @default("—")
+
+  // Relations
+  machine         Machine? @relation("WorkerMachine", fields: [machineId], references: [id], onDelete: SetNull)
+  activityLogs    ActivityLog[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model TelemetryLog {
+  id          String   @id @default(uuid())
+  machineId   String
+  rpm         Int
+  temp        Float
+  efficiency  Int
+  stitchCount Int
+  queue       Int
+  throughput  Int
+  timestamp   DateTime @default(now())
+
+  // Relations
+  machine     Machine  @relation(fields: [machineId], references: [id], onDelete: Cascade)
+
+  @@index([machineId, timestamp])
+}
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  entityType  String   // 'machine' or 'worker'
+  machineId   String?
+  workerId    String?
+  message     String
+  type        String   // 'info', 'warn', 'error', 'ok'
+  timestamp   DateTime @default(now())
+
+  // Relations
+  machine     Machine? @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  worker      Worker?  @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@index([timestamp])
+}
