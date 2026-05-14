@@ -1,4 +1,5 @@
 import { prisma } from './db.js';
+import { buildSeedOrders, buildSeedShipments } from './orderShipmentSeed.js';
 
 async function main() {
   console.log('Seeding database...');
@@ -51,6 +52,16 @@ async function main() {
       productivity: 95, baseSalary: 28000, status: 'assigned'
     }
   });
+
+  console.log('Seeding Orders & Shipments...');
+  await prisma.shipment.deleteMany();
+  await prisma.order.deleteMany();
+
+  const orders = buildSeedOrders();
+  const shipments = buildSeedShipments(orders);
+
+  await prisma.order.createMany({ data: orders });
+  await prisma.shipment.createMany({ data: shipments });
 
   console.log('Database seeded successfully.');
 }

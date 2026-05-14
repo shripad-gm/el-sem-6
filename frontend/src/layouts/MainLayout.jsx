@@ -4,15 +4,21 @@ import { Navbar } from '../components/layout/Navbar';
 import { MesSidebar } from '../components/layout/MesSidebar';
 import { useStore } from '../store/useStore';
 import { useStaffStore } from '../store/useStaffStore';
+import { useOrderStore } from '../store/useOrderStore';
+import { useShipmentStore } from '../store/useShipmentStore';
 
 export default function MainLayout() {
   const fetchInitialData = useStore(state => state.fetchInitialData);
   const fetchWorkers = useStaffStore(state => state.fetchWorkers);
+  const fetchOrders = useOrderStore(state => state.fetchOrders);
+  const fetchShipments = useShipmentStore(state => state.fetchShipments);
 
   useEffect(() => {
     fetchInitialData();
     fetchWorkers();
-  }, [fetchInitialData, fetchWorkers]);
+    fetchOrders();
+    fetchShipments();
+  }, [fetchInitialData, fetchWorkers, fetchOrders, fetchShipments]);
 
   return (
     <div className="h-screen w-screen flex flex-col bg-industrial-bg overflow-hidden text-white selection:bg-brand-primary selection:text-black">

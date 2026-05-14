@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
-import { getMesLogisticsSeed, ORDER_STAGES, WORKFLOW_LINES, SUPERVISORS } from '../data/orderShipmentSeed';
+import { WORKFLOW_LINES, SUPERVISORS, ORDER_STAGES } from '../data/orderShipmentSeed';
+import { apiClient } from '../api/client';
 
 function parseYmd(s) {
   const [y, m, d] = s.split('-').map(Number);
@@ -146,8 +147,8 @@ export function selectFilteredOrders({
   return { pageRows, total };
 }
 
-export const useOrderStore = create((set) => ({
-  orders: getMesLogisticsSeed().orders,
+export const useOrderStore = create((set, get) => ({
+  orders: [],
   selectedOrderId: null,
   searchQuery: '',
   filterStatus: 'all',
@@ -166,6 +167,15 @@ export const useOrderStore = create((set) => ({
     priorities: ['low', 'medium', 'high', 'critical'],
   },
 
+  fetchOrders: async () => {
+    try {
+      const res = await apiClient.get('/orders');
+      set({ orders: res.data });
+    } catch (err) {
+      console.error('Failed to fetch orders:', err);
+    }
+  },
+
   setSearchQuery: (q) => set({ searchQuery: q, page: 1 }),
   setFilterStatus: (v) => set({ filterStatus: v, page: 1 }),
   setFilterPriority: (v) => set({ filterPriority: v, page: 1 }),
@@ -177,7 +187,7 @@ export const useOrderStore = create((set) => ({
   selectOrder: (id) => set({ selectedOrderId: id }),
   clearSelection: () => set({ selectedOrderId: null }),
 
-  addOrder: (payload) => {
+  addOrder: async (payload) => {
     const wf = WORKFLOW_LINES.find((w) => w.id === payload.workflowId) ?? WORKFLOW_LINES[0];
     const deadline = payload.deadline;
     const quantity = Number(payload.quantity) || 500;
@@ -190,7 +200,8 @@ export const useOrderStore = create((set) => ({
       delayed: false,
       bottleneck: false,
     }));
-    const row = {
+    
+    const newOrder = {
       id,
       orderId: `ORD-${num}`,
       productName: payload.productName || 'New production style',
@@ -216,12 +227,33 @@ export const useOrderStore = create((set) => ({
       poRef: payload.poRef || `PO-MSME-${3200 + Math.floor(Math.random() * 400)}`,
       createdAt: new Date().toISOString().slice(0, 10),
     };
-    set((s) => ({ orders: [row, ...s.orders], createOpen: false, page: 1 }));
+
+    // Optimistic update
+    set((s) => ({ orders: [newOrder, ...s.orders], createOpen: false, page: 1 }));
+
+    try {
+      const res = await apiClient.post('/orders', newOrder);
+      // Replace temp ID with actual ID if the DB generated it, though we supply it.
+      set((s) => ({
+        orders: s.orders.map(o => o.id === id ? res.data : o)
+      }));
+    } catch(err) {
+      console.error(err);
+      // Revert if error
+      set((s) => ({ orders: s.orders.filter(o => o.id !== id) }));
+    }
   },
 
-  setPriority: (orderId, priority) => {
+  setPriority: async (orderId, priority) => {
+    // Optimistic update
     set((s) => ({
       orders: s.orders.map((o) => (o.id === orderId ? { ...o, priority } : o)),
     }));
+
+    try {
+      await apiClient.put(`/orders/${orderId}`, { priority });
+    } catch(err) {
+      console.error(err);
+    }
   },
 }));

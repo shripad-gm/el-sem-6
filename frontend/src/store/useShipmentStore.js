@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { CARRIERS, SHIPMENT_FLOW_STAGES, getMesLogisticsSeed } from '../data/orderShipmentSeed';
+import { CARRIERS, SHIPMENT_FLOW_STAGES } from '../data/orderShipmentSeed';
+import { apiClient } from '../api/client';
 
 function parseYmd(s) {
   const [y, m, d] = s.split('-').map(Number);
@@ -108,7 +109,7 @@ export function selectFilteredShipments({
 }
 
 export const useShipmentStore = create((set) => ({
-  shipments: getMesLogisticsSeed().shipments,
+  shipments: [],
   selectedShipmentId: null,
   searchQuery: '',
   filterStatus: 'all',
@@ -122,6 +123,15 @@ export const useShipmentStore = create((set) => ({
     carriers: CARRIERS,
     statuses: ['preparing', 'dispatched', 'in_transit', 'delayed', 'delivered'],
     flow: SHIPMENT_FLOW_STAGES,
+  },
+
+  fetchShipments: async () => {
+    try {
+      const res = await apiClient.get('/shipments');
+      set({ shipments: res.data });
+    } catch(err) {
+      console.error('Failed to fetch shipments:', err);
+    }
   },
 
   setSearchQuery: (q) => set({ searchQuery: q, page: 1 }),

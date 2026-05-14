@@ -102,3 +102,59 @@ model ActivityLog {
 
   @@index([timestamp])
 }
+
+model Order {
+  id                  String   @id @default(uuid())
+  orderId             String   @unique
+  productName         String
+  sku                 String
+  fabric              String
+  poRef               String
+  quantity            Int
+  completionPct       Int
+  shipmentReadyPct    Int
+  status              String
+  priority            String
+  delayRisk           String
+  supervisor          String
+  workflowId          String
+  assignedWorkflow    String
+  deadline            String
+  estimatedCompletion String
+  currentStage        String
+  bottleneck          String
+  
+  stages              Json
+  machines            Json
+  workers             Json
+  timeline            Json
+
+  createdAt           String
+  updatedAt           DateTime @updatedAt
+}
+
+model Shipment {
+  id                  String   @id @default(uuid())
+  shipmentId          String   @unique
+  orderId             String
+  orderProduct        String
+  trackingNumber      String
+  carrier             String
+  carrierId           String
+  carrierRegion       String
+  status              String
+  priority            String
+  etaRisk             String
+  dispatchDate        String
+  expectedDelivery    String
+  destination         String
+  packageCount        Int
+  weightKg            String
+  currentStage        String
+
+  stages              Json
+  logs                Json
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
