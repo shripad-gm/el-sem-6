@@ -132,12 +132,35 @@ export function OrderDetailPanel() {
                 </div>
               </GlassPanel>
 
-              <GlassPanel className="p-4 border border-white/10 flex items-center gap-3">
-                <Truck className="w-8 h-8 text-brand-secondary/80" />
-                <div>
-                  <p className="text-[10px] uppercase font-bold text-white/35 tracking-widest">Logistics bridge</p>
-                  <p className="text-xs text-white/75">Shipment module will pick up when packing lane marks ready.</p>
+              <GlassPanel className="p-4 border border-white/10 space-y-3">
+                <div className="flex items-center gap-3">
+                  <Truck className="w-8 h-8 text-brand-secondary/80" />
+                  <div>
+                    <p className="text-[10px] uppercase font-bold text-white/35 tracking-widest">Logistics bridge</p>
+                    {order.shipments && order.shipments.length > 0 ? (
+                      <p className="text-xs font-semibold text-brand-secondary">{order.shipments.length} shipment(s) linked.</p>
+                    ) : (
+                      <p className="text-xs text-white/75">Shipment module will pick up when packing lane marks ready.</p>
+                    )}
+                  </div>
                 </div>
+                {order.shipments && order.shipments.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    {order.shipments.map(s => (
+                       <div key={s.id} className="flex justify-between items-center bg-black/30 p-2.5 rounded-lg border border-white/5">
+                         <div>
+                           <p className="text-[10px] font-mono text-brand-secondary/70">{s.shipmentId}</p>
+                           <p className="text-[11px] font-semibold text-white/90 capitalize">{s.status.replace('_', ' ')}</p>
+                           <p className="text-[10px] text-white/50">{s.currentStage}</p>
+                         </div>
+                         <div className="text-right">
+                           <p className="text-[10px] text-white/60">{s.packageCount} cartons</p>
+                           <p className="text-[11px] font-semibold text-white/90">{s.expectedDelivery}</p>
+                         </div>
+                       </div>
+                    ))}
+                  </div>
+                )}
               </GlassPanel>
             </div>
           </motion.aside>

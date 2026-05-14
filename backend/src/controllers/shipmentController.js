@@ -3,7 +3,8 @@ import { prisma } from '../db.js';
 export const getShipments = async (req, res) => {
   try {
     const shipments = await prisma.shipment.findMany({
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      include: { order: true }
     });
     res.json(shipments);
   } catch (error) {

@@ -56,7 +56,14 @@ export function ShipmentDetailPanel() {
             <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4">
               <GlassPanel className="p-4 border border-white/10 space-y-2">
                 <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/40">Order information</p>
-                <Row icon={Package} label="Linked style" value={row.orderProduct} />
+                <Row icon={Package} label="Linked style" value={row.order?.productName || row.orderProduct} />
+                {row.order && (
+                  <>
+                    <Row icon={Package} label="Order quantity" value={`${row.order.quantity} units`} />
+                    <Row icon={Package} label="Order completion" value={`${row.order.completionPct}%`} />
+                    <Row icon={Package} label="Supervisor" value={row.order.supervisor} />
+                  </>
+                )}
                 <Row icon={MapPin} label="Destination" value={row.destination} />
                 <Row icon={Truck} label="Priority" value={PRIORITY_LABEL[row.priority] ?? row.priority} />
               </GlassPanel>

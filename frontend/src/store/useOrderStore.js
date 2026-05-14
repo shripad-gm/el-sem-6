@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 import { WORKFLOW_LINES, SUPERVISORS, ORDER_STAGES } from '../data/orderShipmentSeed';
 import { apiClient } from '../api/client';
+import { useShipmentStore } from './useShipmentStore';
 
 function parseYmd(s) {
   const [y, m, d] = s.split('-').map(Number);
@@ -237,6 +238,9 @@ export const useOrderStore = create((set, get) => ({
       set((s) => ({
         orders: s.orders.map(o => o.id === id ? res.data : o)
       }));
+      
+      // Trigger a refetch of shipments so the auto-generated shipment appears in the UI
+      useShipmentStore.getState().fetchShipments();
     } catch(err) {
       console.error(err);
       // Revert if error
