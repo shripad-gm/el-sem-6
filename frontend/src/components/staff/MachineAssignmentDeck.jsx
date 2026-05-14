@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { GripVertical, Factory, GitBranch, Sun, Moon, Sunset } from 'lucide-react';
+import { GripVertical, Factory, GitBranch, Sun, Moon, Sunset, MessageCircle } from 'lucide-react';
 import { GlassPanel } from '../ui/GlassPanel';
 import { useStaffStore, computeMachineOccupancy } from '../../store/useStaffStore';
 import { MACHINE_POOL, SHIFT_OPTIONS, WORKFLOW_OPTIONS } from '../../data/staffSeed';
@@ -125,6 +125,7 @@ export function MachineAssignmentDeck() {
                 <th className="text-left px-3 py-2 font-bold">Workflow</th>
                 <th className="text-left px-3 py-2 font-bold">Shift</th>
                 <th className="text-left px-3 py-2 font-bold">Dept</th>
+                <th className="text-center px-3 py-2 font-bold">Notify</th>
               </tr>
             </thead>
             <tbody>
@@ -183,6 +184,24 @@ export function MachineAssignmentDeck() {
                         </option>
                       ))}
                     </select>
+                  </td>
+                  <td className="px-3 py-2 text-center">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!w.phone) {
+                          alert('No phone number assigned to this worker.');
+                          return;
+                        }
+                        const message = `*Role*\n${w.role}\n\n*Phone Number*\n${w.phone}\n\n*Shift*\n${w.shiftLabel}\n\n*Department*\n${w.department}\n\n*Assigned machine*\n${w.assignedMachineCode !== '—' ? w.assignedMachineCode : '—'}\n\n*Production workflow*\n${w.assignedWorkflow}`;
+                        const url = `https://wa.me/${w.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
+                        window.open(url, '_blank');
+                      }}
+                      title="Send WhatsApp Message"
+                      className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-brand-primary/10 border border-brand-primary/30 text-brand-primary hover:bg-brand-primary/20 transition-colors"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" />
+                    </button>
                   </td>
                 </tr>
               ))}
