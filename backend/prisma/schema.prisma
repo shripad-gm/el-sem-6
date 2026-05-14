@@ -62,6 +62,7 @@ model Worker {
   bonuses         Float    @default(0)
   workstation     String   @default("—")
   tools           String   @default("—")
+  phone           String?
 
   // Relations
   machine         Machine? @relation("WorkerMachine", fields: [machineId], references: [id], onDelete: SetNull)

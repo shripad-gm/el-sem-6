@@ -201,7 +201,7 @@ export const useOrderStore = create((set, get) => ({
       delayed: false,
       bottleneck: false,
     }));
-    
+
     const newOrder = {
       id,
       orderId: `ORD-${num}`,
@@ -238,10 +238,10 @@ export const useOrderStore = create((set, get) => ({
       set((s) => ({
         orders: s.orders.map(o => o.id === id ? res.data : o)
       }));
-      
+
       // Trigger a refetch of shipments so the auto-generated shipment appears in the UI
       useShipmentStore.getState().fetchShipments();
-    } catch(err) {
+    } catch (err) {
       console.error(err);
       // Revert if error
       set((s) => ({ orders: s.orders.filter(o => o.id !== id) }));
@@ -256,7 +256,7 @@ export const useOrderStore = create((set, get) => ({
 
     try {
       await apiClient.put(`/orders/${orderId}`, { priority });
-    } catch(err) {
+    } catch (err) {
       console.error(err);
     }
   },

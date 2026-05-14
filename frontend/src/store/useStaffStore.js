@@ -28,6 +28,10 @@ function enrichWorker(w) {
     attendanceDeductions: deductions,
     overtimePay: otPay,
     totalPayable,
+    avatarHue: w.avatarHue ?? Math.floor(Math.random() * 360),
+    attendanceHistory: w.attendanceHistory ?? ['present', 'present', 'present', 'present', 'present', 'leave', 'absent'],
+    skillTags: w.skillTags ?? ['General Operator', 'Safety Certified'],
+    recentActivity: w.recentActivity ?? [{ t: '08:00 AM', msg: 'System Check-in', type: 'ok' }],
   };
 }
 
@@ -64,7 +68,7 @@ export const useStaffStore = create((set, get) => ({
       const res = await apiClient.get('/workers');
       const enriched = res.data.map(recomputePayrollFields);
       set({ workers: enriched });
-    } catch(err) {
+    } catch (err) {
       console.error('Failed to fetch workers', err);
     }
   },
@@ -89,8 +93,31 @@ export const useStaffStore = create((set, get) => ({
     }));
     try {
       await apiClient.put(`/workers/${id}`, patch);
-    } catch(err) {
+    } catch (err) {
       console.error(err);
+    }
+  },
+
+  createWorker: async (workerData) => {
+    try {
+      const res = await apiClient.post('/workers', workerData);
+      set((state) => ({
+        workers: [...state.workers, recomputePayrollFields(res.data)],
+      }));
+    } catch (err) {
+      console.error('Failed to create worker', err);
+    }
+  },
+
+  deleteWorker: async (id) => {
+    try {
+      await apiClient.delete(`/workers/${id}`);
+      set((state) => ({
+        workers: state.workers.filter((w) => w.id !== id),
+        selectedWorkerId: state.selectedWorkerId === id ? null : state.selectedWorkerId,
+      }));
+    } catch (err) {
+      console.error('Failed to delete worker', err);
     }
   },
 
@@ -235,7 +262,7 @@ export function computeWorkforceKpis(workers) {
       (workers.filter((w) => w.shiftId === 'morning').length / 8 +
         workers.filter((w) => w.shiftId === 'evening').length / 7 +
         workers.filter((w) => w.shiftId === 'night').length / 5) *
-        33
+      33
     )
   );
 

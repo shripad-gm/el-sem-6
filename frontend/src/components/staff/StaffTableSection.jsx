@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -10,6 +10,8 @@ import { GlassPanel } from '../ui/GlassPanel';
 import { STATUS_STYLES, statusLabel, formatInr } from './staffUiUtils';
 import { useStaffStore, selectFilteredWorkers } from '../../store/useStaffStore';
 import { MACHINE_POOL } from '../../data/staffSeed';
+import { AddWorkerModal } from './AddWorkerModal';
+import { Plus } from 'lucide-react';
 
 export function StaffTableSection() {
   const workers = useStaffStore((s) => s.workers);
@@ -34,6 +36,8 @@ export function StaffTableSection() {
   const selectWorker = useStaffStore((s) => s.selectWorker);
   const selectedWorkerId = useStaffStore((s) => s.selectedWorkerId);
   const meta = useStaffStore((s) => s.meta);
+  
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const { pageRows, total } = useMemo(
     () =>
@@ -85,14 +89,22 @@ export function StaffTableSection() {
             <h2 className="text-lg font-bold text-white mt-1">Staff overview</h2>
             <p className="text-[11px] text-white/45 mt-0.5">Industrial table · search, filter, sort, paginate</p>
           </div>
-          <div className="relative w-full lg:max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-            <input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search name, ID, role…"
-              className="w-full pl-10 pr-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white placeholder:text-white/25 focus:outline-none focus:border-brand-primary/40"
-            />
+          <div className="relative w-full lg:max-w-xs flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search name, ID, role…"
+                className="w-full pl-10 pr-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white placeholder:text-white/25 focus:outline-none focus:border-brand-primary/40"
+              />
+            </div>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="px-3 py-2 shrink-0 bg-brand-primary/20 hover:bg-brand-primary/30 border border-brand-primary/50 text-brand-primary rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5"
+            >
+              <Plus className="w-4 h-4" /> Add Staff
+            </button>
           </div>
         </div>
 
@@ -256,6 +268,7 @@ export function StaffTableSection() {
           </button>
         </div>
       </div>
+      <AddWorkerModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
     </GlassPanel>
   );
 }

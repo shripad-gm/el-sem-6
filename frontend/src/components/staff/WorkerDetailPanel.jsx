@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { X, Activity, Cpu, Clock, Wallet, Zap } from 'lucide-react';
+import { X, Activity, Cpu, Clock, Wallet, Zap, Trash2, Phone } from 'lucide-react';
 import { GlassPanel } from '../ui/GlassPanel';
 import { STATUS_STYLES, statusLabel, formatInr } from './staffUiUtils';
 import { useStaffStore } from '../../store/useStaffStore';
@@ -16,6 +16,7 @@ const ATT_LABEL = {
 export function WorkerDetailPanel() {
   const selectedId = useStaffStore((s) => s.selectedWorkerId);
   const clear = useStaffStore((s) => s.clearSelection);
+  const deleteWorker = useStaffStore((s) => s.deleteWorker);
   const worker = useStaffStore((s) => s.workers.find((w) => w.id === selectedId));
 
   return (
@@ -62,18 +63,33 @@ export function WorkerDetailPanel() {
                   </span>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={clear}
-                className="p-2 rounded-lg border border-white/10 text-white/50 hover:text-white hover:border-brand-primary/40 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm('Are you sure you want to remove this worker?')) {
+                      deleteWorker(worker.id);
+                    }
+                  }}
+                  className="p-2 rounded-lg border border-status-error/20 text-status-error/70 hover:text-status-error hover:bg-status-error/10 transition-colors"
+                  title="Delete Worker"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={clear}
+                  className="p-2 rounded-lg border border-white/10 text-white/50 hover:text-white hover:border-brand-primary/40 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4">
               <GlassPanel className="p-4 border border-white/10 space-y-3">
                 <Row icon={Activity} label="Role" value={worker.role} />
+                <Row icon={Phone} label="Phone Number" value={worker.phone || 'N/A'} />
                 <Row icon={Clock} label="Shift" value={worker.shiftLabel} />
                 <Row icon={Cpu} label="Department" value={worker.department} />
                 <Row icon={Cpu} label="Assigned machine" value={worker.assignedMachine} />
