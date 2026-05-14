@@ -8,13 +8,29 @@ import { prisma } from '../db.js';
  */
 
 // Basic simulation state to keep values continuous
-const machineStates = {};
+export const machineStates = {};
+
+export function resetMachineState(id) {
+    if (machineStates[id]) {
+        machineStates[id] = {
+            rpm: 2000,
+            temp: 65,
+            efficiency: 95,
+            stitchCount: machineStates[id].stitchCount || 1500,
+            queue: 10,
+            throughput: 85,
+            power: 1.0,
+            health: 98,
+            lastAlertTime: null
+        };
+    }
+}
 
 export async function runTelemetryTick(io) {
     try {
         // We run telemetry even if no clients are connected to maintain the logs in the DB,
         // but maybe we can skip if DB size grows too fast. For this requirement, we run always.
-        
+
         const machines = await prisma.machine.findMany();
         if (machines.length === 0) return;
 
@@ -41,7 +57,7 @@ export async function runTelemetryTick(io) {
             }
 
             const state = machineStates[m.id];
-            
+
             // If the machine is IDLE, we might want to keep RPM at 0 or randomly start it
             // For a lively factory, let's keep all machines running unless they error out
             let isRunning = m.status === 'RUNNING' || m.status === 'WARNING' || m.status === 'IDLE';
@@ -69,7 +85,7 @@ export async function runTelemetryTick(io) {
             // IF queueLoad > 80 -> WARNING
             // IF healthScore > 90 -> RUNNING
             // ELSE -> RUNNING (or IDLE if rpm 0)
-            
+
             let newStatus = 'RUNNING';
             let newAlert = null;
             let timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -117,7 +133,7 @@ export async function runTelemetryTick(io) {
                 health: Math.round(state.health),
                 timestamp: now
             };
-            
+
             telemetryLogsData.push(telemetryEntry);
 
             const logsPayload = [];
@@ -167,15 +183,15 @@ export async function runTelemetryTick(io) {
 
         // Use a transaction for DB writes
         const txOperations = [];
-        
+
         if (telemetryLogsData.length > 0) {
             txOperations.push(prisma.telemetryLog.createMany({ data: telemetryLogsData }));
         }
-        
+
         if (activityLogsData.length > 0) {
             txOperations.push(prisma.activityLog.createMany({ data: activityLogsData }));
         }
-        
+
         txOperations.push(...machineUpdates);
 
         if (txOperations.length > 0) {

@@ -19,6 +19,7 @@ import { useStore } from '../../store/useStore';
 import { MACHINE_TYPES } from '../../data/machineTypes';
 import { GlassPanel } from '../ui/GlassPanel';
 import { motion, AnimatePresence } from 'framer-motion';
+import { DiagnosticBot } from './DiagnosticBot';
 
 export const InspectionPanel = () => {
   const selectedMachineId = useStore((state) => state.selectedMachineId);
@@ -34,6 +35,7 @@ export const InspectionPanel = () => {
 
   const [activeTab, setActiveTab] = useState('overview');
   const [rerouteTarget, setRerouteTarget] = useState('');
+  const [showDiagnostic, setShowDiagnostic] = useState(false);
   const logEndRef = useRef(null);
 
   const machine = machines.find((m) => m.id === selectedMachineId);
@@ -512,7 +514,12 @@ export const InspectionPanel = () => {
                           {machine.logs.find(l => l.type === 'ERROR' || l.type === 'WARN' || l.type === 'WARNING')?.message || 'Active threshold breach detected in system telemetry.'}
                         </p>
                         <div className="mt-3 flex gap-2">
-                           <button className="px-3 py-1 bg-status-error/20 rounded border border-status-error/30 text-[10px] font-bold text-status-error">RUN DIAGNOSTIC</button>
+                           <button 
+                              onClick={() => setShowDiagnostic(true)}
+                              className="px-3 py-1 bg-status-error/20 rounded border border-status-error/30 text-[10px] font-bold text-status-error hover:bg-status-error/30"
+                           >
+                              RUN DIAGNOSTIC
+                           </button>
                            <button className="px-3 py-1 bg-white/10 rounded border border-white/10 text-[10px] font-bold text-white/60">IGNORE</button>
                         </div>
                       </div>
@@ -545,6 +552,12 @@ export const InspectionPanel = () => {
             )}
           </AnimatePresence>
         </div>
+        {showDiagnostic && (
+          <DiagnosticBot 
+            machine={machine} 
+            onClose={() => setShowDiagnostic(false)} 
+          />
+        )}
       </GlassPanel>
     </div>
   );

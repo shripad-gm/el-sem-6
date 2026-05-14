@@ -1,5 +1,5 @@
 import express from 'express';
-import { getMachines, createMachine, updateMachine, deleteMachine } from '../controllers/machineController.js';
+import { getMachines, createMachine, updateMachine, deleteMachine, resolveMachine } from '../controllers/machineController.js';
 import { getWorkers, createWorker, updateWorker, deleteWorker } from '../controllers/workerController.js';
 import { getConnections, createConnection, deleteConnection } from '../controllers/connectionController.js';
 import { getOrders, createOrder, updateOrder } from '../controllers/orderController.js';
@@ -12,6 +12,7 @@ router.get('/machines', getMachines);
 router.post('/machines', createMachine);
 router.put('/machines/:id', updateMachine);
 router.delete('/machines/:id', deleteMachine);
+router.post('/machines/:id/resolve', resolveMachine);
 
 // Workers
 router.get('/workers', getWorkers);

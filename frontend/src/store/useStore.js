@@ -241,6 +241,17 @@ export const useStore = create((set, get) => ({
     }
   },
 
+  resolveMachineAlert: async (id) => {
+    set((state) => ({
+      machines: state.machines.map((m) => (m.id === id ? { ...m, status: 'RUNNING' } : m)),
+    }));
+    try {
+      await apiClient.post(`/machines/${id}/resolve`);
+    } catch (err) {
+      console.error(err);
+    }
+  },
+
   addConnection: async (source, target) => {
     const state = get();
     if (source === target) return;

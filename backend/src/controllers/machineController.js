@@ -42,3 +42,19 @@ export const deleteMachine = async (req, res) => {
     res.status(500).json({ error: 'Failed to delete machine' });
   }
 };
+
+import { resetMachineState } from '../services/telemetryEngine.js';
+
+export const resolveMachine = async (req, res) => {
+  try {
+    const { id } = req.params;
+    resetMachineState(id);
+    const machine = await prisma.machine.update({
+      where: { id },
+      data: { status: 'RUNNING' },
+    });
+    res.json({ message: 'Machine resolved successfully', machine });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to resolve machine' });
+  }
+};
