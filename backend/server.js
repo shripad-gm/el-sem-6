@@ -5,6 +5,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import apiRoutes from './src/routes/api.js';
 import { prisma } from './src/db.js';
+import { runTelemetryTick } from './src/services/telemetryEngine.js';
 
 dotenv.config();
 
@@ -38,44 +39,15 @@ io.on('connection', async (socket) => {
     });
 });
 
-// Telemetry Simulation Loop (runs every 2 seconds)
-setInterval(async () => {
-    try {
-        // Only simulate if clients are connected
-        if (io.engine.clientsCount === 0) return;
-
-        // Fetch all RUNNING machines
-        const machines = await prisma.machine.findMany({
-            where: { status: 'RUNNING' },
-        });
-
-        if (machines.length === 0) return;
-
-        // Generate random telemetry for running machines
-        const telemetryUpdates = machines.map(m => {
-            return {
-                machineId: m.id,
-                rpm: Math.floor(Math.random() * 200) + 1800, // 1800-2000
-                temp: Math.floor(Math.random() * 10) + 60, // 60-70C
-                efficiency: Math.floor(Math.random() * 10) + 90, // 90-100%
-                stitchCount: Math.floor(Math.random() * 50) + 1000,
-                queue: Math.floor(Math.random() * 5),
-                throughput: Math.floor(Math.random() * 20) + 80, // 80-100
-                timestamp: new Date()
-            };
-        });
-
-        // We could save this to DB, but for performance in this demo we'll just broadcast
-        // await prisma.telemetryLog.createMany({ data: telemetryUpdates });
-
-        io.emit('telemetry_update', telemetryUpdates);
-    } catch (err) {
-        console.error("Telemetry simulation error:", err.message);
-    }
-}, 2000);
+// Telemetry Simulation Loop (runs every 1 second)
+setInterval(() => {
+    runTelemetryTick(io);
+}, 1000);
 
 const PORT = process.env.PORT || 5000;
 
 httpServer.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
+
+// Trigger nodemon restart for new Prisma Client

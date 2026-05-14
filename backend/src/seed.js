@@ -33,25 +33,24 @@ async function main() {
   });
 
   // 3. Workers
-  await prisma.worker.upsert({
-    where: { employeeId: 'EMP-101' },
-    update: {},
-    create: {
-      employeeId: 'EMP-101', name: 'Rahul Mehta', role: 'Operator', department: 'Sewing',
-      shiftId: 'morning', workflowId: 'wf-a', machineId: m1.id,
-      productivity: 88, baseSalary: 24200, status: 'assigned'
-    }
-  });
+  const additionalWorkers = [
+    { employeeId: 'EMP-101', name: 'Rahul Mehta', role: 'Operator', department: 'Sewing', shiftId: 'morning', workflowId: 'wf-a', machineId: m1.id, productivity: 88, baseSalary: 24200, status: 'assigned' },
+    { employeeId: 'EMP-102', name: 'Priya Nair', role: 'QC Inspector', department: 'QC', shiftId: 'morning', workflowId: 'wf-qc', machineId: m3.id, productivity: 95, baseSalary: 28000, status: 'assigned' },
+    { employeeId: 'EMP-103', name: 'Imran Khan', role: 'Master Cutter', department: 'Cutting', shiftId: 'morning', workflowId: 'wf-cut', machineId: null, productivity: 92, baseSalary: 32000, status: 'active' },
+    { employeeId: 'EMP-104', name: 'Neha Sharma', role: 'Operator', department: 'Sewing', shiftId: 'evening', workflowId: 'wf-a', machineId: null, productivity: 85, baseSalary: 23500, status: 'on_leave' },
+    { employeeId: 'EMP-105', name: 'Vikram Singh', role: 'Maintenance Tech', department: 'Maintenance', shiftId: 'morning', workflowId: 'wf-maint', machineId: null, productivity: 98, baseSalary: 35000, status: 'active' },
+    { employeeId: 'EMP-106', name: 'Arjun Patel', role: 'Floor Supervisor', department: 'Production', shiftId: 'morning', workflowId: 'wf-sup', machineId: null, productivity: 99, baseSalary: 45000, status: 'active' },
+    { employeeId: 'EMP-107', name: 'Anjali Desai', role: 'Operator', department: 'Finishing', shiftId: 'evening', workflowId: 'wf-fin', machineId: null, productivity: 89, baseSalary: 22000, status: 'assigned' },
+    { employeeId: 'EMP-108', name: 'Ravi Kumar', role: 'Helper', department: 'Packaging', shiftId: 'morning', workflowId: 'wf-pack', machineId: null, productivity: 75, baseSalary: 18000, status: 'active' }
+  ];
 
-  await prisma.worker.upsert({
-    where: { employeeId: 'EMP-102' },
-    update: {},
-    create: {
-      employeeId: 'EMP-102', name: 'Priya Nair', role: 'QC Inspector', department: 'QC',
-      shiftId: 'morning', workflowId: 'wf-qc', machineId: m3.id,
-      productivity: 95, baseSalary: 28000, status: 'assigned'
-    }
-  });
+  for (const worker of additionalWorkers) {
+    await prisma.worker.upsert({
+      where: { employeeId: worker.employeeId },
+      update: {},
+      create: worker
+    });
+  }
 
   console.log('Seeding Orders & Shipments...');
   await prisma.shipment.deleteMany();

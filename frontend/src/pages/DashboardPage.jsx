@@ -24,7 +24,7 @@ export default function DashboardPage() {
         </header>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {MES_NAV.filter((n) => n.to !== '/dashboard').map((item, i) => {
+          {MES_NAV.filter((n) => n.to !== '/dashboard' && !n.hidden).map((item, i) => {
             const live = LIVE_ROUTES.includes(item.to);
             return (
               <motion.div

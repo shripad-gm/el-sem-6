@@ -270,9 +270,9 @@ export const InspectionPanel = () => {
                   </div>
                   <div className="bg-white/5 rounded-xl p-3 border border-white/5">
                     <p className="text-[10px] text-white/30 uppercase font-bold">Health</p>
-                    <p className="text-xl font-mono text-status-running font-bold">94%</p>
+                    <p className="text-xl font-mono text-status-running font-bold">{machine.telemetry.health ?? 0}%</p>
                     <div className="w-full bg-white/10 h-1 rounded-full mt-2 overflow-hidden">
-                      <div className="bg-status-running h-full shadow-[0_0_5px_#00ff88]" style={{ width: '94%' }} />
+                      <div className="bg-status-running h-full shadow-[0_0_5px_#00ff88]" style={{ width: `${machine.telemetry.health ?? 0}%` }} />
                     </div>
                   </div>
                 </div>
@@ -304,7 +304,7 @@ export const InspectionPanel = () => {
                       <p className="text-[10px] text-brand-primary/80">Active load detected</p>
                     </div>
                   </div>
-                  <p className="text-lg font-mono font-bold text-white">1.2<span className="text-xs ml-0.5 opacity-50">kW</span></p>
+                  <p className="text-lg font-mono font-bold text-white">{machine.telemetry.power ?? 0}<span className="text-xs ml-0.5 opacity-50">kW</span></p>
                 </div>
                 
                 <button 
@@ -509,8 +509,7 @@ export const InspectionPanel = () => {
                       <div>
                         <p className="text-xs font-bold text-status-error uppercase tracking-wider">Critical Anomaly Detected</p>
                         <p className="text-[10px] text-white/70 mt-1 leading-relaxed">
-                          Mechanical stress limit exceeded in main motor assembly. Automatic throttle reduction engaged. 
-                          Check thread tension and lubrication levels.
+                          {machine.logs.find(l => l.type === 'ERROR' || l.type === 'WARN' || l.type === 'WARNING')?.message || 'Active threshold breach detected in system telemetry.'}
                         </p>
                         <div className="mt-3 flex gap-2">
                            <button className="px-3 py-1 bg-status-error/20 rounded border border-status-error/30 text-[10px] font-bold text-status-error">RUN DIAGNOSTIC</button>
@@ -533,14 +532,11 @@ export const InspectionPanel = () => {
                     <History className="w-3 h-3" /> Alert History
                   </h4>
                   <div className="space-y-2 opacity-50">
-                    {[
-                      { time: '09:12', msg: 'Queue capacity warning', type: 'WARNING' },
-                      { time: '08:05', msg: 'Power surge detected', type: 'INFO' }
-                    ].map((h, i) => (
+                    {machine.logs.filter(l => l.type === 'ERROR' || l.type === 'WARN' || l.type === 'WARNING' || l.type === 'INFO').slice(0, 5).map((h, i) => (
                       <div key={i} className="flex justify-between items-center text-[10px] p-2 bg-white/5 rounded">
-                        <span className="text-white/40">{h.time}</span>
-                        <span className="text-white/60">{h.msg}</span>
-                        <span className={h.type === 'WARNING' ? 'text-status-warning' : 'text-brand-primary'}>{h.type}</span>
+                        <span className="text-white/40 shrink-0">{h.time}</span>
+                        <span className="text-white/60 truncate flex-1 px-2">{h.message}</span>
+                        <span className={h.type === 'WARNING' || h.type === 'WARN' ? 'text-status-warning' : h.type === 'ERROR' ? 'text-status-error' : 'text-brand-primary'}>{h.type}</span>
                       </div>
                     ))}
                   </div>

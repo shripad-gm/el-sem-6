@@ -305,14 +305,20 @@ export const useStore = create((set, get) => ({
 
           return {
             ...m,
+            status: tUpdate.status || m.status,
+            logs: tUpdate.newLogs && tUpdate.newLogs.length > 0 
+              ? [...tUpdate.newLogs, ...m.logs].slice(0, 100) // Keep last 100 logs
+              : m.logs,
             telemetry: {
               ...m.telemetry,
-              rpm: tUpdate.rpm,
-              temp: tUpdate.temp,
-              efficiency: tUpdate.efficiency,
-              stitchCount: tUpdate.stitchCount,
-              queue: tUpdate.queue,
-              throughput: tUpdate.throughput,
+              rpm: tUpdate.telemetry.rpm,
+              temp: tUpdate.telemetry.temp,
+              efficiency: tUpdate.telemetry.efficiency,
+              stitchCount: tUpdate.telemetry.stitchCount,
+              queue: tUpdate.telemetry.queue,
+              throughput: tUpdate.telemetry.throughput,
+              power: tUpdate.telemetry.power,
+              health: tUpdate.telemetry.health
             }
           };
         }),

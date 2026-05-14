@@ -11,7 +11,7 @@ export const MesSidebar = () => {
           <p className="text-xs text-white/60 mt-1 leading-snug">MSME Manufacturing Execution</p>
         </div>
         <nav className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-0.5">
-          {MES_NAV.map((item) => (
+          {MES_NAV.filter((item) => !item.hidden).map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

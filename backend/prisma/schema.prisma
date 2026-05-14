@@ -79,6 +79,8 @@ model TelemetryLog {
   stitchCount Int
   queue       Int
   throughput  Int
+  power       Float    @default(0)
+  health      Int      @default(100)
   timestamp   DateTime @default(now())
 
   // Relations
