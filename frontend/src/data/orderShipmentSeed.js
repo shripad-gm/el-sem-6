@@ -1,11 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 
 export const ORDER_STAGES = [
-  'Cutting',
-  'Stitching',
-  'Overlock',
-  'QC',
-  'Ironing',
+  'Fabric Inspection',
+  'Fabric Spreading',
+  'Fabric Cutting',
+  'Bundling',
+  'Stitching Line',
+  'Quality Check',
+  'Ironing / Finishing',
   'Packing',
   'Shipment',
 ];
@@ -105,12 +107,12 @@ export function buildSeedOrders() {
             ? 38 + (i % 5) * 9
             : 22 + (i % 8) * 9;
     const bottleneckStage =
-      status === 'delayed' ? randomPick(['QC', 'Stitching', 'Packing', 'Overlock']) : i % 11 === 0 ? 'QC' : null;
+      status === 'delayed' ? randomPick(['Quality Check', 'Stitching Line', 'Packing', 'Bundling']) : i % 11 === 0 ? 'Quality Check' : null;
     const deadline = daysFromNow(status === 'delayed' ? -2 + (i % 3) : 3 + (i % 9));
     const est = daysFromNow(status === 'delayed' ? 5 + (i % 4) : 1 + (i % 6));
     const supervisor = SUPERVISORS[i % SUPERVISORS.length];
     const stages = buildStages({ status }, completionPct, bottleneckStage);
-    const currentStage = stages.find((s) => s.state === 'active')?.name ?? (completionPct >= 100 ? 'Shipment' : 'Cutting');
+    const currentStage = stages.find((s) => s.state === 'active')?.name ?? (completionPct >= 100 ? 'Shipment' : 'Fabric Cutting');
     const machines =
       i % 2 === 0
         ? ['CUT-A12', 'ST-04', 'OL-07']
