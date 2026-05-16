@@ -9,6 +9,7 @@ import {
   ROLE_OPTIONS,
   recommendedStaffPerShift,
 } from '../data/staffSeed';
+import toast from 'react-hot-toast';
 
 function enrichWorker(w) {
   const machine = w.machineId ? machineById(w.machineId) : null;
@@ -104,8 +105,10 @@ export const useStaffStore = create((set, get) => ({
       set((state) => ({
         workers: [...state.workers, recomputePayrollFields(res.data)],
       }));
+      toast.success(`${workerData.name} onboarded successfully`);
     } catch (err) {
       console.error('Failed to create worker', err);
+      toast.error('Failed to add worker');
     }
   },
 
@@ -116,8 +119,10 @@ export const useStaffStore = create((set, get) => ({
         workers: state.workers.filter((w) => w.id !== id),
         selectedWorkerId: state.selectedWorkerId === id ? null : state.selectedWorkerId,
       }));
+      toast.success('Worker record removed');
     } catch (err) {
       console.error('Failed to delete worker', err);
+      toast.error('Failed to remove worker');
     }
   },
 

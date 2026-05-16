@@ -9,8 +9,10 @@ import { MachineAssignmentDeck } from '../components/staff/MachineAssignmentDeck
 import { AttendanceShiftPanel } from '../components/staff/AttendanceShiftPanel';
 import { PayrollAnalyticsDeck, WorkforceInsightsAndLive, StaffVisualizationRow } from '../components/staff/StaffAnalyticsBlocks';
 import { useStaffStore, computeWorkforceKpis } from '../store/useStaffStore';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function StaffManagementPage() {
+  useDocumentTitle('Staff Management');
   const workers = useStaffStore((s) => s.workers);
   const kpis = useMemo(() => computeWorkforceKpis(workers), [workers]);
 

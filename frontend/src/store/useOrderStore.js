@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { WORKFLOW_LINES, SUPERVISORS, ORDER_STAGES } from '../data/orderShipmentSeed';
 import { apiClient } from '../api/client';
 import { useShipmentStore } from './useShipmentStore';
+import toast from 'react-hot-toast';
 
 function parseYmd(s) {
   const [y, m, d] = s.split('-').map(Number);
@@ -241,8 +242,10 @@ export const useOrderStore = create((set, get) => ({
 
       // Trigger a refetch of shipments so the auto-generated shipment appears in the UI
       useShipmentStore.getState().fetchShipments();
+      toast.success(`Order ${newOrder.orderId} created successfully`);
     } catch (err) {
       console.error(err);
+      toast.error('Failed to create order');
       // Revert if error
       set((s) => ({ orders: s.orders.filter(o => o.id !== id) }));
     }

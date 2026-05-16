@@ -9,8 +9,10 @@ import { OrderInsightsBlock } from '../components/orders/OrderInsightsBlock';
 import { OrderChartsRow } from '../components/orders/OrderChartsRow';
 import { CreateOrderModal } from '../components/orders/CreateOrderModal';
 import { useOrderStore, computeOrderKpis } from '../store/useOrderStore';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function OrderManagementPage() {
+  useDocumentTitle('Order Management');
   const orders = useOrderStore((s) => s.orders);
   const kpis = useMemo(() => computeOrderKpis(orders), [orders]);
 

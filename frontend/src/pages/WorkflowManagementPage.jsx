@@ -2,11 +2,13 @@ import { FactorySidebar } from '../components/layout/FactorySidebar';
 import { InspectionPanel } from '../components/layout/InspectionPanel';
 import { FactoryCanvas } from '../components/factory/FactoryCanvas';
 import { useTelemetry } from '../hooks/useTelemetry';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 /**
  * Full GarmentFlow Twin digital twin — exclusive home for the 3D factory MES experience.
  */
 export default function WorkflowManagementPage() {
+  useDocumentTitle('Digital Twin');
   useTelemetry();
 
   return (

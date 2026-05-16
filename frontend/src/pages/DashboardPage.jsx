@@ -2,10 +2,13 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MES_NAV } from '../config/mesNav';
 import { GlassPanel } from '../components/ui/GlassPanel';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 const LIVE_ROUTES = ['/workflow-management', '/staff-management'];
 
 export default function DashboardPage() {
+  useDocumentTitle('Dashboard');
+
   return (
     <div className="h-full overflow-y-auto custom-scrollbar p-6 md:p-10">
       <motion.div
@@ -23,7 +26,7 @@ export default function DashboardPage() {
           </p>
         </header>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 gap-6 max-w-4xl">
           {MES_NAV.filter((n) => n.to !== '/dashboard' && !n.hidden).map((item, i) => {
             const live = LIVE_ROUTES.includes(item.to);
             return (

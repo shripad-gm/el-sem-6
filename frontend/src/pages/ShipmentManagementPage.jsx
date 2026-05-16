@@ -8,8 +8,10 @@ import { ShipmentDetailPanel } from '../components/shipments/ShipmentDetailPanel
 import { ShipmentInsightsBlock } from '../components/shipments/ShipmentInsightsBlock';
 import { ShipmentChartsRow } from '../components/shipments/ShipmentChartsRow';
 import { useShipmentStore, computeShipmentKpis } from '../store/useShipmentStore';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function ShipmentManagementPage() {
+  useDocumentTitle('Shipment Management');
   const shipments = useShipmentStore((s) => s.shipments);
   const kpis = useMemo(() => computeShipmentKpis(shipments), [shipments]);
 

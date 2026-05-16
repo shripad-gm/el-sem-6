@@ -6,6 +6,7 @@ import { useStore } from '../store/useStore';
 import { useStaffStore } from '../store/useStaffStore';
 import { useOrderStore } from '../store/useOrderStore';
 import { useShipmentStore } from '../store/useShipmentStore';
+import { Toaster } from 'react-hot-toast';
 
 export default function MainLayout() {
   const fetchInitialData = useStore(state => state.fetchInitialData);
@@ -39,6 +40,31 @@ export default function MainLayout() {
           <Outlet />
         </div>
       </div>
+
+      <Toaster 
+        position="bottom-right"
+        toastOptions={{
+          style: {
+            background: 'var(--color-industrial-panel)',
+            color: '#fff',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '8px',
+          },
+          success: {
+            iconTheme: {
+              primary: 'var(--color-status-running)',
+              secondary: '#000',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: 'var(--color-status-error)',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
     </div>
   );
 }
